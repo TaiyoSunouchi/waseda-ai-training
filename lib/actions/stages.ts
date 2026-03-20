@@ -106,17 +106,30 @@ export async function reorderStages(courseId: string, orderedIds: string[]) {
   const { supabase, error: authError } = await requireAdmin()
   if (authError) return { error: authError }
 
-  const updates = orderedIds.map((id, idx) =>
-    supabase
-      .from('stages')
-      .update({ order_index: idx + 1 })
-      .eq('id', id)
-      .eq('course_id', courseId)
+  // UNIQUE (course_id, order_index) 制約があるため、一括更新すると衝突する。
+  // フェーズ1: 現在の値と重複しない大きいオフセット(+1000)を付けた値で全件更新
+  const tempResults = await Promise.all(
+    orderedIds.map((id, idx) =>
+      supabase
+        .from('stages')
+        .update({ order_index: idx + 1001 })
+        .eq('id', id)
+        .eq('course_id', courseId)
+    )
   )
+  if (tempResults.find((r) => r.error)) return { error: 'ステージの並び替えに失敗しました' }
 
-  const results = await Promise.all(updates)
-  const failed = results.find((r) => r.error)
-  if (failed?.error) return { error: 'ステージの並び替えに失敗しました' }
+  // フェーズ2: 最終的な値(1, 2, 3...)で全件更新
+  const finalResults = await Promise.all(
+    orderedIds.map((id, idx) =>
+      supabase
+        .from('stages')
+        .update({ order_index: idx + 1 })
+        .eq('id', id)
+        .eq('course_id', courseId)
+    )
+  )
+  if (finalResults.find((r) => r.error)) return { error: 'ステージの並び替えに失敗しました' }
 
   revalidatePath(`/admin/courses/${courseId}`)
   return { data: true }
