@@ -31,7 +31,7 @@ export default async function TraineeContentPage({
         )}
       </div>
 
-      <div className="card-premium px-8 py-10 mb-6">
+      <div className="card-premium px-4 py-6 sm:px-8 sm:py-10 mb-6">
         <RichTextViewer content={stage.content} />
       </div>
 

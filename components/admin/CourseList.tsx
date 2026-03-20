@@ -36,8 +36,8 @@ function SortableCourseItem({ course }: { course: Course }) {
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="card-premium p-5">
-      <div className="flex items-center justify-between">
+    <div ref={setNodeRef} style={style} className="card-premium p-4 sm:p-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button
             {...attributes}

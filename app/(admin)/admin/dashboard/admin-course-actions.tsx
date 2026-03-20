@@ -21,7 +21,7 @@ export function AdminCourseActions({ course }: { course: Course }) {
   }
 
   return (
-    <div className="flex items-center gap-2 flex-shrink-0">
+    <div className="flex items-center flex-wrap gap-1.5 flex-shrink-0">
       <Link
         href={`/admin/courses/${course.id}`}
         className="text-xs text-gray-600 hover:text-[#0B2447] px-3 py-1.5 border border-[#E8EEF7] rounded-lg hover:bg-[#F2F5FA] transition-colors"

@@ -37,7 +37,7 @@ function SortableStageItem({ stage, courseId }: { stage: Stage; courseId: string
     <div
       ref={setNodeRef}
       style={style}
-      className="card-premium flex items-center justify-between p-4"
+      className="card-premium flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4"
     >
       <div className="flex items-center gap-3 min-w-0">
         <button

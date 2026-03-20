@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { UserMenu } from './UserMenu'
+import { AdminMobileMenu } from './AdminMobileMenu'
 import type { Profile } from '@/lib/supabase/types'
 
 const navItems = [
@@ -24,7 +25,7 @@ export async function AdminNavbar() {
   }
 
   return (
-    <nav className="bg-[#0B2447] border-b border-[#163A6E]">
+    <nav className="bg-[#0B2447] border-b border-[#163A6E] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-6">
@@ -44,7 +45,10 @@ export async function AdminNavbar() {
               ))}
             </div>
           </div>
-          {profile && <UserMenu profile={profile} dark />}
+          <div className="flex items-center gap-2">
+            <AdminMobileMenu />
+            {profile && <UserMenu profile={profile} dark />}
+          </div>
         </div>
       </div>
     </nav>
