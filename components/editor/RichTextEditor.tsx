@@ -108,9 +108,9 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
   if (!editor) return <div className="h-96 animate-pulse bg-gray-50 rounded-xl" />
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
       {/* ===== Toolbar ===== */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-gray-100 px-3 py-1.5 flex items-center flex-wrap gap-0.5">
+      <div className="sticky top-16 z-10 bg-white/95 backdrop-blur border-b border-gray-100 px-3 py-1.5 flex items-center flex-wrap gap-0.5 rounded-t-2xl">
         {/* Undo / Redo */}
         <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} title="元に戻す">
           <Undo className="w-4 h-4" />
