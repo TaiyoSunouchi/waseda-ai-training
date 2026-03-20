@@ -14,13 +14,15 @@ export function isStageAccessible(
   allStages: Stage[],
   progressMap: Map<string, UserProgress>
 ): boolean {
-  if (stage.order_index === 1) return true
+  // order_index の値ではなく、ソート後の位置で判定する。
+  // こうすることで order_index に飛び番があっても正しく動作する。
+  const sorted = [...allStages].sort((a, b) => a.order_index - b.order_index)
+  const position = sorted.findIndex((s) => s.id === stage.id)
 
-  const prevStage = allStages.find(
-    (s) => s.course_id === stage.course_id && s.order_index === stage.order_index - 1
-  )
-  if (!prevStage) return false
+  if (position === -1) return false
+  if (position === 0) return true // 先頭ステージは常にアクセス可
 
+  const prevStage = sorted[position - 1]
   const prevProgress = progressMap.get(prevStage.id)
   return prevProgress?.status === 'passed'
 }
