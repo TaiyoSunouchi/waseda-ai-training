@@ -35,10 +35,10 @@ function ToolbarBtn({
       type="button"
       onMouseDown={(e) => { e.preventDefault(); onClick() }}
       title={title}
-      className={`p-1.5 rounded-md transition-all ${
+      className={`p-1.5 rounded-md transition-colors duration-100 ${
         active
-          ? 'bg-gray-900 text-white'
-          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+          ? 'bg-gray-200 text-gray-900'
+          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
       }`}
     >
       {children}
@@ -47,7 +47,7 @@ function ToolbarBtn({
 }
 
 function Sep() {
-  return <div className="w-px h-5 bg-gray-200 mx-0.5 flex-shrink-0" />
+  return <div className="w-px h-5 bg-gray-200 mx-1 flex-shrink-0" />
 }
 
 export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps) {
@@ -110,7 +110,7 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
   return (
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
       {/* ===== Toolbar ===== */}
-      <div className="sticky top-16 z-10 bg-white/95 backdrop-blur border-b border-gray-100 px-3 py-1.5 flex items-center flex-wrap gap-0.5 rounded-t-2xl">
+      <div className="sticky top-16 z-20 bg-[#F9F9F8] border-b border-gray-200 shadow-md px-4 py-2 flex items-center flex-wrap gap-0.5 rounded-t-2xl">
         {/* Undo / Redo */}
         <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} title="元に戻す">
           <Undo className="w-4 h-4" />
