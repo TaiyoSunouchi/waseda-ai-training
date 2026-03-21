@@ -24,7 +24,7 @@ export default async function CourseDetailPage({
   return (
     <div>
       <div className="mb-8">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#0B2447] transition-colors mb-4">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#0B2447] bg-white border border-[#E8EEF7] hover:border-[#C8D6EC] hover:bg-[#F2F5FA] px-4 py-2.5 rounded-full shadow-sm transition-all duration-200 mb-5">
           <ArrowLeft className="w-4 h-4" />
           コース一覧に戻る
         </Link>
