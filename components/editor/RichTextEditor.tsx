@@ -136,16 +136,27 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
     if (!editor) return
     setUploadStatus('uploading')
     setUploadError(null)
-    const fd = new FormData()
-    fd.append('file', file)
-    const result = await uploadContentImage(fd)
-    if (result?.error) {
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const result = await uploadContentImage(fd)
+      if (result?.error) {
+        setUploadStatus('error')
+        setUploadError(result.error)
+        setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
+      } else if (result?.data) {
+        editor.chain().focus().setImage({ src: result.data }).run()
+        setUploadStatus('idle')
+      } else {
+        setUploadStatus('error')
+        setUploadError('アップロードに失敗しました（応答なし）')
+        setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
+      }
+    } catch (e) {
+      console.error('Image upload exception:', e)
       setUploadStatus('error')
-      setUploadError(result.error)
+      setUploadError('アップロード中にエラーが発生しました')
       setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
-    } else if (result?.data) {
-      editor.chain().focus().setImage({ src: result.data }).run()
-      setUploadStatus('idle')
     }
   }, [editor])
 
