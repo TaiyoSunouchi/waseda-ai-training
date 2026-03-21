@@ -12,7 +12,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   List, ListOrdered, Quote, Code, Link as LinkIcon,
   Image as ImageIcon, Minus, Heading1, Heading2, Heading3,
-  AlignLeft, AlignCenter, AlignRight, Undo, Redo,
+  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Loader2,
 } from 'lucide-react'
 import { uploadContentImage } from '@/lib/actions/content-images'
 import { saveStageContent } from '@/lib/actions/stages'
@@ -22,20 +22,46 @@ interface RichTextEditorProps {
   initialContent?: string | null
 }
 
+// 画像のwidth属性をサポートするカスタム拡張
+const ResizableImage = ImageExtension.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        renderHTML: (attributes) => {
+          if (!attributes.width) return {}
+          return {
+            style: `width: ${attributes.width}; height: auto; display: block;`,
+          }
+        },
+        parseHTML: (element) => {
+          const style = element.getAttribute('style')
+          if (!style) return null
+          const match = style.match(/width:\s*([^;]+)/)
+          return match ? match[1].trim() : null
+        },
+      },
+    }
+  },
+})
+
 function ToolbarBtn({
-  onClick, active, title, children,
+  onClick, active, title, children, disabled,
 }: {
   onClick: () => void
   active?: boolean
   title: string
   children: React.ReactNode
+  disabled?: boolean
 }) {
   return (
     <button
       type="button"
       onMouseDown={(e) => { e.preventDefault(); onClick() }}
       title={title}
-      className={`p-1.5 rounded-md transition-colors duration-100 ${
+      disabled={disabled}
+      className={`p-1.5 rounded-md transition-colors duration-100 disabled:opacity-40 disabled:cursor-not-allowed ${
         active
           ? 'bg-gray-200 text-gray-900'
           : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
@@ -50,8 +76,17 @@ function Sep() {
   return <div className="w-px h-5 bg-gray-200 mx-1 flex-shrink-0" />
 }
 
+const IMAGE_WIDTHS = [
+  { label: '25%', value: '25%' },
+  { label: '50%', value: '50%' },
+  { label: '75%', value: '75%' },
+  { label: '100%', value: '100%' },
+]
+
 export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'error'>('idle')
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -66,8 +101,8 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-      ImageExtension.configure({
-        HTMLAttributes: { class: 'max-w-full rounded-xl my-6 mx-auto block shadow-sm' },
+      ResizableImage.configure({
+        HTMLAttributes: { class: 'rounded-xl my-6 mx-auto shadow-sm' },
       }),
       LinkExtension.configure({
         openOnClick: false,
@@ -99,11 +134,23 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
 
   const handleImageFile = useCallback(async (file: File) => {
     if (!editor) return
+    setUploadStatus('uploading')
+    setUploadError(null)
     const fd = new FormData()
     fd.append('file', file)
     const result = await uploadContentImage(fd)
-    if (result?.data) editor.chain().focus().setImage({ src: result.data }).run()
+    if (result?.error) {
+      setUploadStatus('error')
+      setUploadError(result.error)
+      setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
+    } else if (result?.data) {
+      editor.chain().focus().setImage({ src: result.data }).run()
+      setUploadStatus('idle')
+    }
   }, [editor])
+
+  const isImageSelected = editor?.isActive('image') ?? false
+  const currentImageWidth = editor?.getAttributes('image').width ?? null
 
   if (!editor) return <div className="h-96 animate-pulse bg-gray-50 rounded-xl" />
 
@@ -184,17 +231,65 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
         <ToolbarBtn onClick={insertLink} active={editor.isActive('link')} title="リンク挿入">
           <LinkIcon className="w-4 h-4" />
         </ToolbarBtn>
-        <ToolbarBtn onClick={() => fileInputRef.current?.click()} title="画像挿入">
-          <ImageIcon className="w-4 h-4" />
+        <ToolbarBtn
+          onClick={() => fileInputRef.current?.click()}
+          title="画像挿入"
+          disabled={uploadStatus === 'uploading'}
+        >
+          {uploadStatus === 'uploading'
+            ? <Loader2 className="w-4 h-4 animate-spin" />
+            : <ImageIcon className="w-4 h-4" />
+          }
         </ToolbarBtn>
 
+        {/* 画像選択時: サイズ変更コントロール */}
+        {isImageSelected && (
+          <>
+            <Sep />
+            <span className="text-xs text-gray-400 px-1 flex-shrink-0">画像幅:</span>
+            {IMAGE_WIDTHS.map(({ label, value }) => (
+              <ToolbarBtn
+                key={value}
+                onClick={() => editor.chain().focus().updateAttributes('image', { width: value }).run()}
+                active={currentImageWidth === value}
+                title={`幅を${label}に変更`}
+              >
+                <span className="text-xs font-mono px-0.5">{label}</span>
+              </ToolbarBtn>
+            ))}
+            <ToolbarBtn
+              onClick={() => editor.chain().focus().updateAttributes('image', { width: null }).run()}
+              active={currentImageWidth === null}
+              title="幅をデフォルトに戻す"
+            >
+              <span className="text-xs font-mono px-0.5">auto</span>
+            </ToolbarBtn>
+          </>
+        )}
+
         {/* Save status */}
-        <div className="ml-auto text-xs font-medium pl-2">
-          {saveStatus === 'saving' && <span className="text-gray-400">保存中...</span>}
+        <div className="ml-auto text-xs font-medium pl-2 flex-shrink-0">
+          {uploadStatus === 'uploading' && <span className="text-blue-500">画像アップロード中...</span>}
+          {saveStatus === 'saving' && uploadStatus === 'idle' && <span className="text-gray-400">保存中...</span>}
           {saveStatus === 'saved' && <span className="text-emerald-500">✓ 保存済み</span>}
           {saveStatus === 'error' && <span className="text-red-500">⚠ 保存失敗</span>}
         </div>
       </div>
+
+      {/* アップロードエラーバナー */}
+      {uploadStatus === 'error' && uploadError && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-2 flex items-center gap-2 text-sm text-red-700">
+          <span>⚠</span>
+          <span>{uploadError}</span>
+          <button
+            type="button"
+            onClick={() => { setUploadStatus('idle'); setUploadError(null) }}
+            className="ml-auto text-red-400 hover:text-red-600"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* ===== Editor area ===== */}
       <div className="max-w-[720px] mx-auto px-8 py-8">
