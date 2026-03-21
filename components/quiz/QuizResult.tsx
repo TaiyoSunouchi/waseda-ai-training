@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { QuizQuestion } from './QuizQuestion'
-import { CheckCircle, XCircle, RotateCcw, ChevronRight, BookOpen } from 'lucide-react'
+import { RotateCcw, ChevronRight, BookOpen } from 'lucide-react'
 import type { QuizAttemptResult } from '@/lib/actions/quiz-attempt'
 
 interface QuizOption {
@@ -42,20 +43,22 @@ export function QuizResult({ result, courseId, stageId, quizzes, onRetryWrongAns
             : 'bg-gradient-to-br from-red-50 to-orange-50 border-red-200'
         }`}
       >
-        <div className="flex justify-center mb-4">
-          {passed ? (
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle className="w-9 h-9 text-green-600" />
-            </div>
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-              <XCircle className="w-9 h-9 text-red-500" />
-            </div>
-          )}
+        <div className="flex justify-center mb-3">
+          <Image
+            src={passed ? '/mascot/joy.jpg' : '/mascot/surprised.jpg'}
+            alt="マスコットベア"
+            width={96}
+            height={96}
+            className={`object-contain drop-shadow-lg ${passed ? 'animate-bounce' : ''}`}
+            style={{ animationDuration: passed ? '1.2s' : undefined, animationIterationCount: passed ? '3' : undefined }}
+          />
         </div>
-        <h2 className={`text-2xl font-bold mb-2 ${passed ? 'text-green-800' : 'text-red-700'}`}>
-          {passed ? '合格おめでとうございます！' : '不合格'}
+        <h2 className={`text-2xl font-bold mb-1 ${passed ? 'text-green-800' : 'text-red-700'}`}>
+          {passed ? '合格おめでとう！🎉' : 'もう一息！一緒に頑張ろう💪'}
         </h2>
+        <p className={`text-xs mb-2 ${passed ? 'text-green-600' : 'text-red-500'}`}>
+          {passed ? 'よく頑張ったね！次のステージへ進もう' : 'コンテンツを見直してもう一度挑戦しよう'}
+        </p>
         <p className={`text-5xl font-bold my-3 ${passed ? 'text-green-900' : 'text-red-900'}`}>
           {score}<span className="text-2xl ml-1">点</span>
         </p>

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { getPublishedCourses } from '@/lib/queries/courses'
 import { getStagesWithProgress } from '@/lib/queries/stages'
@@ -24,7 +25,23 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-8">
+      {/* ウェルカムカード */}
+      <div className="mb-8 bg-gradient-to-r from-[#0B2447] to-[#163A6E] rounded-2xl p-6 flex items-center gap-5 shadow-md overflow-hidden relative">
+        {/* 背景装飾 */}
+        <div className="absolute right-0 top-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        {/* ベア */}
+        <div className="flex-shrink-0 relative z-10">
+          <Image src="/mascot/happy.jpg" alt="マスコット" width={80} height={80} className="object-contain drop-shadow-lg" />
+        </div>
+        {/* テキスト */}
+        <div className="relative z-10 flex-1">
+          <p className="text-white/70 text-xs mb-1">早稲田AI研究会</p>
+          <h2 className="text-white font-bold text-lg leading-snug">今日も一緒に学習しよう！🎓</h2>
+          <p className="text-white/60 text-xs mt-1">どのコースから始める？</p>
+        </div>
+      </div>
+
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#0B2447]">コース一覧</h1>
         <p className="text-gray-500 mt-1 text-sm">受講可能なコースを選択してください</p>
       </div>
