@@ -14,7 +14,7 @@ import {
   Image as ImageIcon, Minus, Heading1, Heading2, Heading3,
   AlignLeft, AlignCenter, AlignRight, Undo, Redo, Loader2,
 } from 'lucide-react'
-import { uploadContentImage } from '@/lib/actions/content-images'
+import { createClient } from '@/lib/supabase/client'
 import { saveStageContent } from '@/lib/actions/stages'
 
 interface RichTextEditorProps {
@@ -136,27 +136,34 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
     if (!editor) return
     setUploadStatus('uploading')
     setUploadError(null)
-    try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const result = await uploadContentImage(fd)
-      if (result?.error) {
-        setUploadStatus('error')
-        setUploadError(result.error)
-        setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
-      } else if (result?.data) {
-        editor.chain().focus().setImage({ src: result.data }).run()
-        setUploadStatus('idle')
-      } else {
-        setUploadStatus('error')
-        setUploadError('アップロードに失敗しました（応答なし）')
-        setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
-      }
-    } catch (e) {
-      console.error('Image upload exception:', e)
+
+    const showError = (msg: string) => {
       setUploadStatus('error')
-      setUploadError('アップロード中にエラーが発生しました')
-      setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 5000)
+      setUploadError(msg)
+      setTimeout(() => { setUploadStatus('idle'); setUploadError(null) }, 6000)
+    }
+
+    try {
+      // Vercel の 4.5MB 制限を回避するためブラウザから Supabase へ直接アップロード
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('content-images')
+        .upload(fileName, file, { contentType: file.type })
+
+      if (uploadError) {
+        showError(`アップロード失敗: ${uploadError.message}`)
+        return
+      }
+
+      const { data } = supabase.storage.from('content-images').getPublicUrl(fileName)
+      editor.chain().focus().setImage({ src: data.publicUrl }).run()
+      setUploadStatus('idle')
+    } catch (e) {
+      console.error('Image upload error:', e)
+      showError('アップロード中に予期しないエラーが発生しました')
     }
   }, [editor])
 
