@@ -15,7 +15,7 @@ export default function LoginPage() {
           className="object-contain drop-shadow-lg flex-shrink-0"
         />
         <div className="relative bg-white/90 backdrop-blur-sm border border-white/60 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-md text-sm text-gray-700 font-medium">
-          おかえり！一緒に頑張ろう🎓
+          一緒に頑張ろう🎓
           {/* 吹き出し尻尾 */}
           <div className="absolute -bottom-[8px] left-4 w-0 h-0 border-x-[7px] border-x-transparent border-t-[8px] border-t-white/60" />
           <div className="absolute -bottom-[6px] left-4 w-0 h-0 border-x-[7px] border-x-transparent border-t-[8px] border-t-white/90" />
