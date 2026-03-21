@@ -11,7 +11,7 @@ import { useCallback, useRef, useState } from 'react'
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   List, ListOrdered, Quote, Code, Link as LinkIcon,
-  Image as ImageIcon, Minus, Heading1, Heading2, Heading3,
+  Image as ImageIcon, Link2, Minus, Heading1, Heading2, Heading3,
   AlignLeft, AlignCenter, AlignRight, Undo, Redo, Loader2,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -122,6 +122,13 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
       saveTimerRef.current = setTimeout(() => triggerSave(editor.getHTML()), 1500)
     },
   })
+
+  const insertImageByUrl = useCallback(() => {
+    if (!editor) return
+    const url = window.prompt('画像またはGIFのURLを入力してください:', 'https://')
+    if (!url || url === 'https://') return
+    editor.chain().focus().setImage({ src: url }).run()
+  }, [editor])
 
   const insertLink = useCallback(() => {
     if (!editor) return
@@ -262,13 +269,16 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
         </ToolbarBtn>
         <ToolbarBtn
           onClick={() => fileInputRef.current?.click()}
-          title="画像挿入"
+          title="画像をアップロード"
           disabled={uploadStatus === 'uploading'}
         >
           {uploadStatus === 'uploading'
             ? <Loader2 className="w-4 h-4 animate-spin" />
             : <ImageIcon className="w-4 h-4" />
           }
+        </ToolbarBtn>
+        <ToolbarBtn onClick={insertImageByUrl} title="URLから画像・GIFを挿入">
+          <Link2 className="w-4 h-4" />
         </ToolbarBtn>
 
         {/* 画像選択時: サイズ変更コントロール */}
