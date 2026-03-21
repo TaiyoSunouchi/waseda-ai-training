@@ -5,6 +5,7 @@ import { getCourse } from '@/lib/queries/courses'
 import { getStagesWithProgress } from '@/lib/queries/stages'
 import { StatusBadge } from '@/components/common/StatusBadge'
 import { Lock, BookOpen, ChevronRight, ArrowLeft } from 'lucide-react'
+import { StagePageMascot } from '@/components/mascot/StagePageMascot'
 
 export default async function CourseDetailPage({
   params,
@@ -28,10 +29,17 @@ export default async function CourseDetailPage({
           <ArrowLeft className="w-4 h-4" />
           コース一覧に戻る
         </Link>
-        <h1 className="text-2xl font-bold text-[#0B2447]">{course.title}</h1>
-        {course.description && (
-          <p className="text-gray-500 mt-1.5">{course.description}</p>
-        )}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-[#0B2447]">{course.title}</h1>
+            {course.description && (
+              <p className="text-gray-500 mt-1.5">{course.description}</p>
+            )}
+          </div>
+          <div className="flex-shrink-0 hidden sm:block">
+            <StagePageMascot />
+          </div>
+        </div>
       </div>
 
       <div className="space-y-3">

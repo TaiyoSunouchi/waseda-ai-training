@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { X, ChevronDown } from 'lucide-react'
 
 const MESSAGES = [
@@ -22,6 +23,10 @@ export function FloatingMascot() {
   const [msgIndex, setMsgIndex] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  const pathname = usePathname()
+  // ダッシュボード（コース一覧）とステージ選択ページでは非表示
+  const isHidden = pathname === '/dashboard' || /^\/courses\/[^/]+$/.test(pathname)
+
   // hydration対応
   useEffect(() => { setMounted(true) }, [])
 
@@ -41,7 +46,7 @@ export function FloatingMascot() {
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [open])
 
-  if (!mounted || dismissed) return null
+  if (!mounted || dismissed || isHidden) return null
 
   const msg = MESSAGES[msgIndex]
   const mood: Mood = msg.mood as Mood
