@@ -144,8 +144,15 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
     }
 
     try {
-      // Vercel の 4.5MB 制限を回避するためブラウザから Supabase へ直接アップロード
       const supabase = createClient()
+
+      // セッション確認
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        showError('未認証です。再ログインしてください')
+        return
+      }
+
       const ext = file.name.split('.').pop() ?? 'jpg'
       const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
 
@@ -154,7 +161,10 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
         .upload(fileName, file, { contentType: file.type })
 
       if (uploadError) {
-        showError(`アップロード失敗: ${uploadError.message}`)
+        // エラーコードと詳細を表示
+        const code = (uploadError as { statusCode?: string }).statusCode ?? ''
+        console.error('Supabase storage error:', uploadError)
+        showError(`アップロード失敗 [${code}]: ${uploadError.message}`)
         return
       }
 
@@ -163,7 +173,8 @@ export function RichTextEditor({ stageId, initialContent }: RichTextEditorProps)
       setUploadStatus('idle')
     } catch (e) {
       console.error('Image upload error:', e)
-      showError('アップロード中に予期しないエラーが発生しました')
+      const msg = e instanceof Error ? e.message : String(e)
+      showError(`予期しないエラー: ${msg}`)
     }
   }, [editor])
 
