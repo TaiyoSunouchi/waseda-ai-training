@@ -24,6 +24,7 @@ export function RegisterForm() {
     const fd = new FormData()
     fd.append('email', data.email)
     fd.append('password', data.password)
+    fd.append('confirmPassword', data.confirmPassword)
     fd.append('fullName', data.fullName)
     const result = await signUp(fd)
     if (result?.error) {
