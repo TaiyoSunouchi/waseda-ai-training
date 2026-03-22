@@ -29,8 +29,10 @@ export async function signIn(raw: { email: string; password: string }) {
 }
 
 export async function signUp(raw: { email: string; password: string; fullName: string }) {
+  console.log('[signUp] received:', { email: raw?.email, fullName: raw?.fullName, hasPassword: !!raw?.password })
   const result = serverRegisterSchema.safeParse(raw)
   if (!result.success) {
+    console.log('[signUp] validation error:', result.error.issues)
     return { error: result.error.issues[0].message }
   }
 
