@@ -10,10 +10,17 @@ import type { Stage, UserProgress } from '@/lib/supabase/types'
  * @param progressMap ユーザーの進捗Map（stage_id → UserProgress）
  */
 export function isStageAccessible(
-  _stage: Stage,
-  _allStages: Stage[],
-  _progressMap: Map<string, UserProgress>
+  stage: Stage,
+  allStages: Stage[],
+  progressMap: Map<string, UserProgress>
 ): boolean {
-  // 全ステージを最初から閲覧可能
-  return true
+  // 第1ステージは常にアクセス可
+  if (stage.order_index === 1) return true
+
+  // 前ステージを取得
+  const prevStage = allStages.find(s => s.order_index === stage.order_index - 1)
+  if (!prevStage) return false
+
+  // 前ステージが合格済みの場合のみアクセス可
+  return progressMap.get(prevStage.id)?.status === 'passed'
 }
