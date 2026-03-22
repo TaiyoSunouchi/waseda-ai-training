@@ -42,15 +42,15 @@ export function RegisterForm() {
 
       <div>
         <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1.5">
-          氏名
+          ニックネーム
         </label>
         <input
           id="fullName"
           type="text"
-          autoComplete="name"
+          autoComplete="nickname"
           {...register('fullName')}
           className="input-premium"
-          placeholder="山田 太郎"
+          placeholder="わせだベア"
         />
         {errors.fullName && (
           <p className="mt-1 text-xs text-red-600">{errors.fullName.message}</p>

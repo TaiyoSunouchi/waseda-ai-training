@@ -11,8 +11,8 @@ export const registerSchema = z.object({
   confirmPassword: z.string().min(1, '確認用パスワードを入力してください'),
   fullName: z
     .string()
-    .min(1, '氏名を入力してください')
-    .max(100, '氏名は100文字以内で入力してください'),
+    .min(1, 'ニックネームを入力してください')
+    .max(100, 'ニックネームは100文字以内で入力してください'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'パスワードが一致しません',
   path: ['confirmPassword'],
