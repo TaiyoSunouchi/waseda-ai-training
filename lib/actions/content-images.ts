@@ -31,7 +31,6 @@ export async function uploadContentImage(
     .upload(fileName, file, { contentType: file.type, upsert: false })
 
   if (uploadError) {
-    console.error('Supabase upload error:', uploadError)
     return { error: `アップロードに失敗しました: ${uploadError.message}` }
   }
 

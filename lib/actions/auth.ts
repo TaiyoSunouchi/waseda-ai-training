@@ -20,10 +20,7 @@ export async function signIn(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(result.data)
 
   if (error) {
-    if (error.message.includes('Email not confirmed')) {
-      return { error: 'メールアドレスの確認が完了していません。Supabaseダッシュボードで確認を完了するか、管理者にお問い合わせください' }
-    }
-    return { error: `ログインに失敗しました: ${error.message}` }
+    return { error: 'メールアドレスまたはパスワードが正しくありません' }
   }
 
   redirect('/')
@@ -54,10 +51,7 @@ export async function signUp(formData: FormData) {
   })
 
   if (error) {
-    if (error.message.includes('already registered') || error.message.includes('already been registered')) {
-      return { error: 'このメールアドレスは既に登録されています' }
-    }
-    return { error: `登録に失敗しました: ${error.message}` }
+    return { error: '登録に失敗しました。入力内容を確認してください' }
   }
 
   // 登録成功後、そのままログイン
