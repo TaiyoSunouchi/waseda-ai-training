@@ -13,6 +13,11 @@ export default function RegisterPage() {
           ログイン
         </Link>
       </p>
+      <p className="mt-3 text-sm text-center text-gray-400">
+        <Link href="/admin-login" className="hover:text-gray-600 transition-colors underline underline-offset-2">
+          管理者の方はこちら
+        </Link>
+      </p>
     </div>
   )
 }

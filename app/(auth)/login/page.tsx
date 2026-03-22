@@ -16,7 +16,6 @@ export default function LoginPage() {
         />
         <div className="relative bg-white/90 backdrop-blur-sm border border-white/60 rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-md text-sm text-gray-700 font-medium">
           一緒に頑張ろう🎓
-          {/* 吹き出し尻尾 */}
           <div className="absolute -bottom-[8px] left-4 w-0 h-0 border-x-[7px] border-x-transparent border-t-[8px] border-t-white/60" />
           <div className="absolute -bottom-[6px] left-4 w-0 h-0 border-x-[7px] border-x-transparent border-t-[8px] border-t-white/90" />
         </div>
@@ -30,6 +29,11 @@ export default function LoginPage() {
           アカウントをお持ちでない方は{' '}
           <Link href="/register" className="text-[#C05621] hover:text-[#9a3b0b] font-medium transition-colors">
             新規登録
+          </Link>
+        </p>
+        <p className="mt-3 text-sm text-center text-gray-400">
+          <Link href="/admin-login" className="hover:text-gray-600 transition-colors underline underline-offset-2">
+            管理者の方はこちら
           </Link>
         </p>
       </div>

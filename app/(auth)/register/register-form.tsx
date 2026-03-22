@@ -9,6 +9,7 @@ import { signUp } from '@/lib/actions/auth'
 export function RegisterForm() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   const {
     register,
@@ -31,7 +32,27 @@ export function RegisterForm() {
     if (result?.error) {
       setServerError(result.error)
       setLoading(false)
+    } else if (result?.needsConfirmation) {
+      setNeedsConfirmation(true)
+      setLoading(false)
     }
+  }
+
+  if (needsConfirmation) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+          <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="text-base font-semibold text-[#0B2447]">確認メールを送信しました</h3>
+        <p className="text-sm text-gray-600">
+          登録したメールアドレスに確認メールを送りました。
+          <br />メール内のリンクをクリックしてログインしてください。
+        </p>
+      </div>
+    )
   }
 
   return (

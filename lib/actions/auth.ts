@@ -7,52 +7,39 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { loginSchema } from '@/lib/validations/auth'
 
 const serverRegisterSchema = z.object({
-  email: z.string().email('有効なメールアドレスを入力してください'),
+  email: z.string().trim().min(1).email('有効なメールアドレスを入力してください'),
   password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
-  fullName: z.string().min(1, 'ニックネームを入力してください').max(100, 'ニックネームは100文字以内で入力してください'),
+  fullName: z.string().min(1, 'ニックネームを入力してください').max(100),
 })
 
-export async function signIn(raw: { email: string; password: string }) {
-  const result = loginSchema.safeParse(raw)
-  if (!result.success) {
-    return { error: result.error.issues[0].message }
-  }
-
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword(result.data)
-
-  if (error) {
-    return { error: 'メールアドレスまたはパスワードが正しくありません' }
-  }
-
-  redirect('/')
-}
-
+// 研修生・一般ユーザー：メール+パスワードで新規登録
 export async function signUp(raw: { email: string; password: string; fullName: string }) {
-  console.log('[signUp] received:', { email: raw?.email, fullName: raw?.fullName, hasPassword: !!raw?.password })
   const result = serverRegisterSchema.safeParse(raw)
   if (!result.success) {
-    console.log('[signUp] validation error:', result.error.issues)
     return { error: result.error.issues[0].message }
   }
 
-  // adminクライアントでメール確認をスキップして登録
+  // admin API でユーザー作成（メール確認スキップ・RLS をバイパス）
   const adminClient = createAdminClient()
-  const { error } = await adminClient.auth.admin.createUser({
+  const { error: createError } = await adminClient.auth.admin.createUser({
     email: result.data.email,
     password: result.data.password,
-    email_confirm: true, // メール確認を自動でスキップ
+    email_confirm: true,
     user_metadata: {
       full_name: result.data.fullName,
       role: 'trainee',
     },
   })
 
-  if (error) {
-    return { error: '登録に失敗しました。入力内容を確認してください' }
+  if (createError) {
+    console.error('[signUp] createUser error:', createError.message)
+    if (createError.message.toLowerCase().includes('already registered') || createError.message.toLowerCase().includes('already exists')) {
+      return { error: 'このメールアドレスはすでに登録されています' }
+    }
+    return { error: `登録に失敗しました: ${createError.message}` }
   }
 
-  // 登録成功後、そのままログイン
+  // Cookie ベースでサインイン
   const supabase = await createClient()
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email: result.data.email,
@@ -60,8 +47,28 @@ export async function signUp(raw: { email: string; password: string; fullName: s
   })
 
   if (signInError) {
-    // ログインに失敗してもloginページへ（手動ログインを促す）
+    console.error('[signUp] signIn error:', signInError.message)
     redirect('/login')
+  }
+
+  redirect('/')
+}
+
+// ログイン（研修生・管理者共通）
+export async function signIn(raw: { email: string; password: string }) {
+  const result = loginSchema.safeParse(raw)
+  if (!result.success) {
+    return { error: result.error.issues[0].message }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({
+    email: result.data.email.trim(),
+    password: result.data.password,
+  })
+
+  if (error) {
+    return { error: 'メールアドレスまたはパスワードが正しくありません' }
   }
 
   redirect('/')
