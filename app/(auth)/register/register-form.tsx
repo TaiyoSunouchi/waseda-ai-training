@@ -90,6 +90,22 @@ export function RegisterForm() {
         )}
       </div>
 
+      <div>
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1.5">
+          パスワード（確認）
+        </label>
+        <input
+          id="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          {...register('confirmPassword')}
+          className="input-premium"
+        />
+        {errors.confirmPassword && (
+          <p className="mt-1 text-xs text-red-600">{errors.confirmPassword.message}</p>
+        )}
+      </div>
+
       <button
         type="submit"
         disabled={loading}
