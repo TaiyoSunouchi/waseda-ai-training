@@ -21,12 +21,7 @@ export function RegisterForm() {
   const onSubmit = async (data: RegisterInput) => {
     setLoading(true)
     setServerError(null)
-    const fd = new FormData()
-    fd.append('email', data.email)
-    fd.append('password', data.password)
-    fd.append('confirmPassword', data.confirmPassword)
-    fd.append('fullName', data.fullName)
-    const result = await signUp(fd)
+    const result = await signUp(data)
     if (result?.error) {
       setServerError(result.error)
       setLoading(false)

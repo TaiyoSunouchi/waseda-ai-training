@@ -5,12 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { loginSchema, registerSchema } from '@/lib/validations/auth'
 
-export async function signIn(formData: FormData) {
-  const raw = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
+export async function signIn(raw: { email: string; password: string }) {
   const result = loginSchema.safeParse(raw)
   if (!result.success) {
     return { error: result.error.issues[0].message }
@@ -26,14 +21,7 @@ export async function signIn(formData: FormData) {
   redirect('/')
 }
 
-export async function signUp(formData: FormData) {
-  const raw = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-    confirmPassword: formData.get('confirmPassword') as string,
-    fullName: formData.get('fullName') as string,
-  }
-
+export async function signUp(raw: { email: string; password: string; confirmPassword: string; fullName: string }) {
   const result = registerSchema.safeParse(raw)
   if (!result.success) {
     return { error: result.error.issues[0].message }

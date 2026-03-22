@@ -21,10 +21,7 @@ export function LoginForm() {
   const onSubmit = async (data: LoginInput) => {
     setLoading(true)
     setServerError(null)
-    const fd = new FormData()
-    fd.append('email', data.email)
-    fd.append('password', data.password)
-    const result = await signIn(fd)
+    const result = await signIn(data)
     if (result?.error) {
       setServerError(result.error)
       setLoading(false)
