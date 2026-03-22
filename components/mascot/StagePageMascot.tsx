@@ -34,9 +34,9 @@ export function StagePageMascot() {
       </div>
 
       {/* 吹き出し（右から左向き） */}
-      <div className="relative">
+      <div className="relative w-44">
         <div className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 rounded-2xl rounded-br-sm px-4 py-2.5 shadow-md">
-          <p className="text-xs text-gray-700 leading-relaxed font-medium whitespace-pre-line text-right">
+          <p className="text-xs text-gray-700 leading-relaxed font-medium whitespace-pre-line text-right h-8">
             {MESSAGES[msgIndex]}
           </p>
           {/* ドットナビ */}
